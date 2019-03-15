@@ -41,7 +41,7 @@ int mode = 0;
 int menu = 0;
 
 //reflowing
-int stage = 1;
+int stage = 0;
 int sTime = 0;
 
 void setup() {
@@ -110,13 +110,11 @@ void loop() {
     if (stage == 1){
      Setpoint = 150;
      lcd.print("Ramping Up");
-   }else if (stage == 2){
+    }else if (stage == 2){
      lcd.print("Soaking");
     }else if (stage == 3){
-     Setpoint = 225;
      lcd.print("Reflowing");
     }else if (stage == 4){
-     Setpoint = 10;
      if (temp < 50){
       lcd.print("Complete!");
      }else{
@@ -127,8 +125,10 @@ void loop() {
    //Reflow stage progression
    if (stage == 3 && temp > 220){
      stage = 4;
+     Setpoint = 10;
    }else if (stage == 2 && currentTime > sTime ){
      stage = 3;
+     Setpoint = 225;
    }else if (stage == 1 && temp > 145){
      sTime = currentTime + 60000;
      stage = 2;
@@ -170,6 +170,10 @@ void buttonInput(){
     if(debounce==0){
      mode=menu;
      menu=0;
+     if (mode == 2){
+		 Setpoint = 150;
+		 stage = 1;
+	 }
      startTime = currentTime;
     }
     debounce = 2;
