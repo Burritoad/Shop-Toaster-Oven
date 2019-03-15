@@ -9,15 +9,14 @@ int thermoCLK = 10;
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
 int vccPin = 11;
 int gndPin = 12;
-int temp = 0;
+float temp = 0;
 
 //Relay Stuff
 int relayPin = 13;
 float heatTime = 1;
 int cycleCount = 0;
 int cycleReset = 20;
-int Setpoint = 100;
-
+int Setpoint = 0;
 
 //Input pins
 int selPin=A0;
@@ -88,27 +87,11 @@ void loop() {
 // Display temp and elapsed time on the top line 
    lcd.clear();
    lcd.selectLine(1);
-   lcd.print(temp);
-   lcd.print(" C");
-   lcd.print("   ");
-   if (temp < 100){
-      lcd.print(" ");
-   }
-   if (mins < 10){
-      lcd.print(" ");
-   }
-   //Display the time in Human formatting
-   mins = currentTime/60000;
-   secs = (currentTime/1000)-(mins*60);
-   lcd.print(mins);
-   lcd.print(":");
-   if (secs < 10){
-     lcd.print(0);
-   }
-   lcd.print(secs);
-
+   printTemp(temp);
+   printTime(currentTime);
+// Display mode info on the second line
    lcd.selectLine(2);
-   //modes
+   //modes: Menu, Set Temp, Reflow
    if(mode==0){
     if(menu==0){
       lcd.print("Ready to Cook");
@@ -151,8 +134,38 @@ void loop() {
      stage = 2;
    }
    
-//Inputs etc
-   if(digitalRead(selPin) == LOW){
+   buttonInput();
+   delay(220);
+}
+
+//display the time, pad with spaces as needed
+void printTemp(float t){
+   lcd.print(t);
+   lcd.print(" C");
+   lcd.print("   ");
+   if (t < 100){
+      lcd.print(" ");
+   }
+   if (mins < 10){
+      lcd.print(" ");
+   }
+}
+
+//Display the time in human format
+void printTime(int t){
+   mins = t/60000;
+   secs = (t/1000)-(mins*60);
+   lcd.print(mins);
+   lcd.print(":");
+   if (secs < 10){
+     lcd.print(0);
+   }
+   lcd.print(secs);
+}
+
+//Inputs
+void buttonInput(){
+  if(digitalRead(selPin) == LOW){
     //Serial.print("Select");
     if(debounce==0){
      mode=menu;
@@ -200,5 +213,4 @@ void loop() {
    if(debounce<0){
     debounce=0;
    }
-   delay(220);
 }
